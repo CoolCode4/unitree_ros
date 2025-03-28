@@ -38,7 +38,15 @@
             <topicName>/apply_force/trunk</topicName>
         </plugin>
     </gazebo>
-
+    <gazebo>
+        <plugin filename="libgazebo_ros_p3d.so" name="gazebo_ros_p3d">
+        <bodyName>base</bodyName>
+        <topicName>ground_truth_odom</topicName>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>100.0</updateRate>
+        <tf_prefixed>true</tf_prefixed>
+        </plugin>
+    </gazebo>
     <gazebo reference="imu_link">
         <gravity>true</gravity>
         <sensor name="imu_sensor" type="imu">

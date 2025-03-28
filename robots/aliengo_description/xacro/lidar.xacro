@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 雷达传感器宏定义 -->
+  <xacro:macro name="lidar_sensor" params="parent prefix:=lidar xyz:='0 0 0.1' rpy:='0 0 0' radius:=0.05 length:=0.04 mass:=0.1 visible:=true">
+    
+    <!-- 雷达连接关节 -->
+    <joint name="${prefix}_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${prefix}_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+    
+    <!-- 雷达链接 -->
+    <link name="${prefix}_link">
+      <xacro:if value="${visible}">
+        <visual>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${radius}" length="${length}"/>
+          </geometry>
+          <material name="black"/>
+        </visual>
+      </xacro:if>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length}"/>
+        </geometry>
+      </collision>
+      
+      <inertial>
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia 
+          ixx="${mass * (3 * radius * radius + length * length) / 12}" 
+          ixy="0" 
+          ixz="0"
+          iyy="${mass * (3 * radius * radius + length * length) / 12}" 
+          iyz="0"
+          izz="${mass * radius * radius / 2}"/>
+      </inertial>
+    </link>
+    
+    <!-- 雷达的仿真属性 -->
+    <gazebo reference="${prefix}_link">
+      <material>Gazebo/Black</material>
+      <sensor type="ray" name="${prefix}">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>false</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14159</min_angle>
+              <max_angle>3.14159</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>30.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_${prefix}_controller" filename="libgazebo_ros_laser.so">
+          <topicName>/scan</topicName>
+          <frameName>${prefix}_link</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+    
+  </xacro:macro>
+</robot>
